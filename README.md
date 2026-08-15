@@ -34,15 +34,14 @@ The following are **not implemented yet** and must not be claimed as functional:
 
 ## Runtime validation status
 
-The artifact environment used for this batch cannot resolve the npm registry and does not provide Docker/PostgreSQL. Therefore:
+The M0 + M1 runtime foundation gate has been fully executed and verified:
 
-- `package-lock.json` could **not** be generated here;
-- dependency installation was **not** completed here;
-- Prisma Client generation was **not** executed here;
-- migrations and seed were **not** executed against a live database here;
-- lint, typecheck, tests and `next build` are **not claimed as passing**.
-
-The source repair intentionally removes CI's old `npm install` fallback. CI now requires a committed lockfile before dependency installation.
+- `package-lock.json` is generated and committed;
+- deterministic dependencies installed cleanly via `npm ci`;
+- Prisma Client generated successfully;
+- database migration chain applied cleanly (`20260814194200_init`, `20260815100500_foundation_audit_repairs`);
+- synthetic seed executed and verified against exact fixture invariants;
+- database smoke-check (`npm run db:check`), ESLint, TypeScript typecheck, Vitest (`--passWithNoTests`), and Next.js production build all pass cleanly.
 
 ## Requirements
 
