@@ -1,0 +1,207 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum RunStatus {
+  DRAFT
+  READY
+  RUNNING
+  VALIDATING
+  COMPLETED
+  FAILED
+}
+
+enum ObjectType {
+  CUSTOMER
+  MATERIAL
+}
+
+enum TransformationRuleType {
+  COUNTRY_MAP
+  UNIT_MAP
+  TRIM
+  LOWERCASE
+  IDENTITY
+}
+
+enum ValidationRuleType {
+  REQUIRED
+  EXACT_LENGTH
+  REGEX
+  ENUM
+  RANGE
+  REFERENCE_EXISTS
+  UNIQUE
+}
+
+enum ValidationSeverity {
+  WARNING
+  ERROR
+}
+
+enum ValidationStatus {
+  PASS
+  WARNING
+  FAIL
+}
+
+enum ReasonCode {
+  REQUIRED_VALUE_MISSING
+  INVALID_COUNTRY_CODE
+  INVALID_DATE_FORMAT
+  INVALID_EMAIL
+  UNMAPPED_UNIT
+  INVALID_LENGTH
+  VALUE_OUT_OF_RANGE
+  DUPLICATE_TARGET_KEY
+  UNKNOWN_REFERENCE
+  TRANSFORMATION_ERROR
+}
+
+enum AuditEventType {
+  RUN_CREATED
+  TRANSFORMATION_STARTED
+  TRANSFORMATION_COMPLETED
+  VALIDATION_STARTED
+  RULE_FAILED
+  VALIDATION_COMPLETED
+  VALIDATION_FAILED
+}
+
+enum EntityType {
+  RUN
+  RECORD
+  RULE
+}
+
+model TransformationRun {
+  id                 String              @id @default(cuid())
+  runNumber          String              @unique @map("run_number")
+  sourceSystem       String              @map("source_system")
+  targetSystem       String              @map("target_system")
+  objectType         ObjectType          @map("object_type")
+  status             RunStatus
+  totalRecords       Int                 @default(0) @map("total_records")
+  passedRecords      Int                 @default(0) @map("passed_records")
+  warningRecords     Int                 @default(0) @map("warning_records")
+  failedRecords      Int                 @default(0) @map("failed_records")
+  createdAt          DateTime            @default(now()) @map("created_at")
+  startedAt          DateTime?           @map("started_at")
+  completedAt        DateTime?           @map("completed_at")
+  sourceRecords      SourceRecord[]
+  auditEvents        AuditEvent[]
+
+  @@index([status])
+  @@index([objectType])
+  @@map("transformation_runs")
+}
+
+model SourceRecord {
+  id                String             @id @default(cuid())
+  runId             String             @map("run_id")
+  externalId        String             @map("external_id")
+  objectType        ObjectType         @map("object_type")
+  payload           Json               @map("payload_json")
+  createdAt         DateTime           @default(now()) @map("created_at")
+  run               TransformationRun  @relation(fields: [runId], references: [id], onDelete: Cascade)
+  transformedRecord TransformedRecord?
+
+  @@unique([runId, externalId])
+  @@unique([runId, id], map: "source_records_run_id_id_key")
+  @@index([runId])
+  @@map("source_records")
+}
+
+model TransformedRecord {
+  id                String             @id @default(cuid())
+  runId             String             @map("run_id")
+  sourceRecordId    String             @unique @map("source_record_id")
+  externalId        String             @map("external_id")
+  payload           Json               @map("payload_json")
+  createdAt         DateTime           @default(now()) @map("created_at")
+  sourceRecord      SourceRecord       @relation(fields: [runId, sourceRecordId], references: [runId, id], onDelete: Cascade)
+  validationResults ValidationResult[]
+
+  @@unique([runId, externalId])
+  @@unique([runId, id], map: "transformed_records_run_id_id_key")
+  @@index([runId])
+  @@map("transformed_records")
+}
+
+model TransformationRule {
+  id            String                 @id @default(cuid())
+  code          String
+  name          String
+  objectType    ObjectType             @map("object_type")
+  sourceField   String                 @map("source_field")
+  targetField   String                 @map("target_field")
+  ruleType      TransformationRuleType @map("rule_type")
+  configuration Json                   @map("configuration_json")
+  enabled       Boolean                @default(true)
+  version       Int                    @default(1)
+  createdAt     DateTime               @default(now()) @map("created_at")
+
+  @@unique([code, version])
+  @@index([objectType, enabled])
+  @@map("transformation_rules")
+}
+
+model ValidationRule {
+  id                String               @id @default(cuid())
+  code              String
+  name              String
+  objectType        ObjectType           @map("object_type")
+  fieldName         String               @map("field_name")
+  ruleType          ValidationRuleType   @map("rule_type")
+  severity          ValidationSeverity
+  configuration     Json                 @map("configuration_json")
+  enabled           Boolean              @default(true)
+  version           Int                  @default(1)
+  createdAt         DateTime             @default(now()) @map("created_at")
+  validationResults ValidationResult[]
+
+  @@unique([code, version])
+  @@index([objectType, enabled])
+  @@map("validation_rules")
+}
+
+model ValidationResult {
+  id                  String             @id @default(cuid())
+  runId               String             @map("run_id")
+  transformedRecordId String             @map("transformed_record_id")
+  validationRuleId    String             @map("validation_rule_id")
+  status              ValidationStatus
+  reasonCode          ReasonCode?        @map("reason_code")
+  actualValue         String?            @map("actual_value")
+  expectedValue       String?            @map("expected_value")
+  message             String?
+  createdAt           DateTime           @default(now()) @map("created_at")
+  transformedRecord   TransformedRecord  @relation(fields: [runId, transformedRecordId], references: [runId, id], onDelete: Cascade)
+  validationRule      ValidationRule     @relation(fields: [validationRuleId], references: [id], onDelete: Restrict)
+
+  @@unique([transformedRecordId, validationRuleId])
+  @@index([runId])
+  @@index([status])
+  @@index([reasonCode])
+  @@map("validation_results")
+}
+
+model AuditEvent {
+  id         String            @id @default(cuid())
+  runId      String            @map("run_id")
+  eventType  AuditEventType    @map("event_type")
+  entityType EntityType        @map("entity_type")
+  entityId   String?           @map("entity_id")
+  payload    Json              @map("payload_json")
+  createdAt  DateTime          @default(now()) @map("created_at")
+  run        TransformationRun @relation(fields: [runId], references: [id], onDelete: Cascade)
+
+  @@index([runId, createdAt])
+  @@index([eventType])
+  @@map("audit_events")
+}

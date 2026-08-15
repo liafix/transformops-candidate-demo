@@ -1,0 +1,26 @@
+{
+  "project": "TransformOps",
+  "classification": "candidate-demonstrator-foundation",
+  "batch": [
+    "M0",
+    "M1",
+    "FOUNDATION_AUDIT_REPAIRS"
+  ],
+  "audit_repairs_applied": true,
+  "source_repairs_complete": true,
+  "lockfile_committed": false,
+  "runtime_verified": false,
+  "re_audit_ready": false,
+  "synthetic_data_only": true,
+  "published": false,
+  "deployed": false,
+  "remaining_gate": "Use Node 22.12+, create local .env with the provisioned Neon pooled/direct connection URLs, preserve/generate package-lock.json, then run npm run verify:foundation.",
+  "reason_runtime_pending": "Database has been provisioned, but the full Prisma migration/seed/typecheck/build chain has not yet been executed from the user runtime.",
+  "re_audit_blocker_fixed": true,
+  "source_re_audit_ready": true,
+  "runtime_fix_prepared": true,
+  "node_runtime_target": "22.x (22.12+)",
+  "prisma_generate_env_bootstrap_fixed": true,
+  "deployment_prisma_generation_fixed": true,
+  "neon_database_provisioned": true
+}

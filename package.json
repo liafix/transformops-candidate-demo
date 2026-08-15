@@ -1,0 +1,54 @@
+{
+  "name": "transformops-candidate-demo",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Independent candidate demonstrator for deterministic enterprise data transformation and validation using synthetic data.",
+  "engines": {
+    "node": "22.x"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "prisma generate && next build",
+    "start": "next start",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --passWithNoTests",
+    "test:watch": "vitest",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:migrate:deploy": "prisma migrate deploy",
+    "db:seed": "prisma db seed",
+    "db:studio": "prisma studio",
+    "db:reset": "prisma migrate reset",
+    "db:check": "tsx scripts/test-database.ts",
+    "lockfile:generate": "npm install --package-lock-only",
+    "preinstall": "node scripts/check-node.mjs",
+    "postinstall": "prisma generate",
+    "verify:foundation": "npm run db:generate && npm run db:migrate:deploy && npm run db:seed && npm run db:check && npm run lint && npm run typecheck && npm test && npm run build"
+  },
+  "dependencies": {
+    "@prisma/adapter-pg": "^7.0.0",
+    "@prisma/client": "^7.0.0",
+    "dotenv": "^17.0.0",
+    "next": "16.3.1",
+    "pg": "^8.16.0",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "zod": "^4.0.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.0.0",
+    "@types/node": "^22.0.0",
+    "@types/pg": "^8.15.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "eslint": "^9.0.0",
+    "eslint-config-next": "16.3.1",
+    "prisma": "^7.0.0",
+    "tailwindcss": "^4.0.0",
+    "tsx": "^4.20.0",
+    "typescript": "^5.4.0",
+    "vitest": "^3.0.0"
+  },
+  "type": "module"
+}
