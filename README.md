@@ -5,43 +5,38 @@
 > **Independent Candidate Demonstrator**  
 > TransformOps is an independent portfolio project by Dušan Cabala, created using publicly available information about the SNP Slovakia Trainee R&D role as general inspiration for the technical scope. It uses synthetic data only. It is not an SNP product, is not affiliated with SNP, and does not represent SNP, SAP, CrystalBridge, customer environments, internal architecture, migration methods or proprietary processes.
 
-## Current implementation status — M0 + M1 foundation
+## Current implementation status — M0 + M1 Foundation & M2 Domain Engine
 
-This repository currently contains the **foundation codebase only**, including foundation-audit source repairs:
+This repository contains the verified M0/M1 runtime foundation and **M2 Domain Engine**:
 
 - Next.js + TypeScript + Tailwind application shell;
-- PostgreSQL domain model in Prisma;
-- checked-in initial migration plus a run-integrity repair migration;
-- deterministic synthetic seed definitions for five transformation runs and 54 source records;
-- 44 seeded transformed records and 112 persisted PASS/WARNING/FAIL validation results across completed fixtures;
-- deterministic synthetic audit timestamps;
-- destructive seed-reset guard;
-- Prisma/PostgreSQL runtime client wiring;
-- local PostgreSQL Docker Compose definition;
-- database smoke-check assertions;
-- CI contract that requires a committed lockfile and uses `npm ci` only;
-- candidate-demo `noindex` metadata and visible disclaimer.
+- PostgreSQL domain model in Prisma with composite foreign key integrity constraints;
+- Run state machine (`DRAFT` -> `READY` -> `RUNNING` -> `VALIDATING` -> `COMPLETED`/`FAILED`) with terminal state enforcement and non-mutating retry run specifications;
+- Pure, deterministic transformation rules engine (`COUNTRY_MAP`, `UNIT_MAP`, `TRIM`, `LOWERCASE`, `IDENTITY`) for customer and material domain rules without dynamic code execution;
+- Pure, deterministic validation engine (`REQUIRED`, `EXACT_LENGTH`, `REGEX`, `ENUM`, `RANGE`, `REFERENCE_EXISTS`, `UNIQUE`) mapping reason codes (`REQUIRED_VALUE_MISSING`, `INVALID_COUNTRY_CODE`, `INVALID_EMAIL`, `UNMAPPED_UNIT`, `VALUE_OUT_OF_RANGE`, `DUPLICATE_TARGET_KEY`, `UNKNOWN_REFERENCE`, `TRANSFORMATION_ERROR`);
+- 40 automated pure unit tests in Vitest covering state transitions, retry semantics, customer/material transformations, validation rules, reason codes, and edge inputs;
+- Deterministic synthetic seed definitions and smoke checks (`npm run db:check`).
 
-The following are **not implemented yet** and must not be claimed as functional:
+The following are **not started yet** and must not be claimed as functional:
 
-- runtime transformation rule engine;
-- validation execution service;
-- run state-machine enforcement;
-- API surface beyond future planned work;
-- operational dashboard, run explorer and audit UI;
-- automated domain/API test suite;
+- API surface and workflow execution service (M3);
+- Operational dashboard UI and run explorer;
+- Authentication;
+- SAP/ABAP integration;
+- CrystalBridge emulation;
 - Vercel/Neon deployment.
 
 ## Runtime validation status
 
-The M0 + M1 runtime foundation gate has been fully executed and verified:
+The complete verification gate has been executed and verified passing:
 
 - `package-lock.json` is generated and committed;
 - deterministic dependencies installed cleanly via `npm ci`;
 - Prisma Client generated successfully;
-- database migration chain applied cleanly (`20260814194200_init`, `20260815100500_foundation_audit_repairs`);
+- database migration chain applied cleanly (`20260814194200_init`, `20260815100500_foundation_audit_repairs`, `20260815123000_add_transformed_records_run_id_source_record_id_key`);
 - synthetic seed executed and verified against exact fixture invariants;
-- database smoke-check (`npm run db:check`), ESLint, TypeScript typecheck, Vitest (`--passWithNoTests`), and Next.js production build all pass cleanly.
+- 40 automated unit tests passing cleanly in Vitest;
+- database smoke-check (`npm run db:check`), ESLint, TypeScript typecheck, Vitest, and Next.js production build all pass cleanly.
 
 ## Requirements
 

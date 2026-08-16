@@ -1,26 +1,24 @@
 {
   "project": "TransformOps",
-  "classification": "candidate-demonstrator-foundation",
+  "classification": "candidate-demonstrator-m2",
   "batch": [
     "M0",
     "M1",
-    "FOUNDATION_AUDIT_REPAIRS"
+    "FOUNDATION_AUDIT_REPAIRS",
+    "M2_DOMAIN_ENGINE"
   ],
   "audit_repairs_applied": true,
   "source_repairs_complete": true,
   "lockfile_committed": true,
   "runtime_verified": true,
-  "re_audit_ready": true,
+  "m0_m1_runtime_verified": true,
+  "m2_domain_engine_implemented": true,
+  "m2_domain_tests_passing": true,
+  "m3_api_ui_started": false,
   "synthetic_data_only": true,
   "published": true,
   "deployed": false,
-  "remaining_gate": "M0 + M1 runtime foundation gate complete and verified.",
-  "reason_runtime_pending": null,
-  "re_audit_blocker_fixed": true,
-  "source_re_audit_ready": true,
-  "runtime_fix_prepared": true,
   "node_runtime_target": "22.x (22.12+)",
-  "prisma_generate_env_bootstrap_fixed": true,
-  "deployment_prisma_generation_fixed": true,
-  "neon_database_provisioned": true
+  "test_suite": "40 pure domain unit tests passing (state machine, transformation rules, validation rules & reason codes)",
+  "status_summary": "M0/M1 runtime foundation verified; M2 domain engine & state machine implemented with 40 unit tests passing; M3/API/UI NOT STARTED."
 }
