@@ -129,6 +129,7 @@ model TransformedRecord {
 
   @@unique([runId, externalId])
   @@unique([runId, id], map: "transformed_records_run_id_id_key")
+  @@unique([runId, sourceRecordId])
   @@index([runId])
   @@map("transformed_records")
 }
